@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import logging
-import jieba
+import jieba, jieba.analyse
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -66,14 +66,19 @@ def plot_message_counts_pie_chart(data):
 def generate_word_cloud(data):
     # 使用 jieba 进行中文文本分词
     words = ' '.join(jieba.cut(''.join(data['cleaned_message'])))
-    # 移除特殊字符
-    words = re.sub(r'[^\u4e00-\u9fa5]', ' ', words)
+
+    # 过滤停用词
+    stopwords_file = os.path.abspath('data/stopwords/stopwords_full.txt')
+    with open(stopwords_file, 'r', encoding='utf-8') as f:
+        stopwords = set(f.read().splitlines())
+    filtered_words = [word for word in words.split() if word not in stopwords]
+
     # 获取 Microsoft YaHei 字体的绝对路径
-    font_path = os.path.abspath('fonts/msyh.ttc')
+    font_path = os.path.abspath('data\fonts\msyh.ttc')
 
     # 创建一个词频计数器
     word_freq = {}
-    for word in words.split():
+    for word in filtered_words:
         word_freq[word] = word_freq.get(word, 0) + 1
 
     # 生成词云图
@@ -89,12 +94,12 @@ if __name__ == '__main__':
     conn = connect_to_database()
 
     # 步骤 2：查询数据库并获取指定日期和聊天 ID 的数据
-    target_date = '2023-07-29'
+    target_date = '2023-07-30'
     target_chat_id = -1001838000252  # 请用实际的聊天 ID 替换这个示例值
     data = get_data_from_database(conn, target_date, target_chat_id)
 
     # 步骤 3：为每个用户绘制消息数量的饼图
-    plot_message_counts_pie_chart(data)
+    #plot_message_counts_pie_chart(data)
 
     # 步骤 5：为消息文本生成词云图
     generate_word_cloud(data)
