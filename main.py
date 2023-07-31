@@ -3,6 +3,7 @@ from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHan
 from config import set_proxy_url, set_token
 from command_start import start
 from command_ping import ping
+from command_search import search
 from message_handler_text import handle_text_message
 from message_handler_media import handle_media_message
 
@@ -17,6 +18,7 @@ if __name__ == '__main__':
     # Set handlers
     start_handler = CommandHandler('start', start)
     caps_handler = CommandHandler('ping', ping)
+    search_handler = CommandHandler('search', search, filters.ChatType.GROUPS)
     text_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_message)
     media_filters = filters.ALL & (~filters.COMMAND) & (~filters.TEXT)
     media_handler = MessageHandler(media_filters, handle_media_message)
@@ -24,6 +26,7 @@ if __name__ == '__main__':
     # Add handlers to the application
     application.add_handler(start_handler)
     application.add_handler(caps_handler)
+    application.add_handler(search_handler)
     application.add_handler(text_handler)
     application.add_handler(media_handler)
 
